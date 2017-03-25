@@ -1,0 +1,10 @@
+﻿<meta>
+  <!-- Meta -->
+  <info name="Async Server Callback" description="Async Server Callback test script" author="Eraknelo" version="1.0" shadowcopy="false" />
+
+	<!-- Server -->
+	<script src="Server/bin/GTANAsyncServerCallback.GTA.dll" type="server" lang="compiled" />
+  
+  <!-- Client -->
+  <script src="Client/bin/Compiled.js" type="client" lang="javascript" />
+</meta>
