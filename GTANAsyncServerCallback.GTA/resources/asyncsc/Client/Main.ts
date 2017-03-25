@@ -1,10 +1,11 @@
 ﻿/// <reference path="../../../types-gtanetwork/index.d.ts" />
 class Main {
-	constructor() {
-		//var list = new List(String);
-		//list.Add("test");
+	private asyncServerCallback = new AsyncServerCallback();
 
+	constructor() {
 		API.onUpdate.connect(this.onUpdate);
+
+		this.asyncServerCallback.registerEventHandler("client-test", this.clientTestMethodHandler);
 	}
 
 	private onUpdate = () => {
@@ -18,9 +19,13 @@ class Main {
 
 		API.sendChatMessage(`Sending: ${stringToSend}`);
 
-		const awaitedResponse = await AsyncServerCallback.getFromServer("test", stringToSend);
+		const awaitedResponse = await this.asyncServerCallback.getFromServer("server-test", stringToSend);
 
 		API.sendChatMessage(`Response: ${awaitedResponse[0]}`);
+	}
+
+	clientTestMethodHandler = (argumentss: System.Array<any>) => {
+		return [argumentss[0] + "to that!"];
 	}
 }
 

@@ -1,9 +1,52 @@
 ﻿/// <reference path="../../../types-gtanetwork/index.d.ts" />
 
 class AsyncServerCallback {
-	private static requestEventName = "GetFromServerRequest-";
-	private static responseEventName = "GetFromServerResponse-";
+	private static serverRequestEventName = "GetFromServerRequest-";
+	private static serverResponseEventName = "GetFromServerResponse-";
+	private static clientRequestEventName = "GetFromClientRequest-";
+	private static clientResponseEventName = "GetFromClientResponse-";
 	private static callbackTimeout = 1000;
+
+	private eventHandlers: { [methodName: string]: (argumentss: System.Array<any>) => any[] } = {};
+
+	constructor() {
+		API.onServerEventTrigger.connect(this.onServerEventTrigger);
+	}
+
+	registerEventHandler = (methodName: string, handler: (argumentss: System.Array<any>) => any[]) => {
+		methodName = AsyncServerCallback.sanitizeMethodName(methodName);
+
+		if (this.eventHandlers.hasOwnProperty(methodName))
+			return;
+
+		this.eventHandlers[methodName] = handler;
+	}
+
+	unregisterEventHandler = (methodName: string) => {
+		methodName = AsyncServerCallback.sanitizeMethodName(methodName);
+
+		if (!this.eventHandlers.hasOwnProperty(methodName))
+			return;
+
+		delete this.eventHandlers[methodName];
+	}
+
+	async getFromServer(method: string, ...args: any[]) {
+		const uid = AsyncServerCallback.createUid();
+
+		const responsePromise = new Promise<System.Array<any>>((resolve) => {
+			var handler = API.onServerEventTrigger.connect((eventName, eventArgs) => {
+				if (eventName !== AsyncServerCallback.serverResponseEventName + uid) return;
+
+				handler.disconnect();
+				resolve(eventArgs);
+			});
+		});
+
+		AsyncServerCallback.shittyMethodArgsInvoke(`${AsyncServerCallback.serverRequestEventName}${AsyncServerCallback.sanitizeMethodName(method)}-${uid}`, args);
+
+		return responsePromise;
+	}
 
 	private static createUid() {
 		return Math.floor((1 + Math.random()) * 0x10000)
@@ -11,29 +54,38 @@ class AsyncServerCallback {
 			.substring(1);
 	}
 
+	private static replyToServerWithResponse = (requestUid: string, response: any[]) => {
+		AsyncServerCallback.shittyMethodArgsInvoke(`${AsyncServerCallback.clientResponseEventName}${requestUid}`, response);
+	}
+
 	private static sanitizeMethodName(methodName: string) {
 		return methodName.replace(/[^a-zA-Z0-9]+/g, "_");
 	}
+	
+	private onServerEventTrigger = (eventName: string, argumentss: System.Array<any>) => {
+		if (eventName.indexOf(AsyncServerCallback.clientRequestEventName) !== 0)
+			return;
 
-	static async getFromServer(method: string, ...args: any[]) {
-		const uid = AsyncServerCallback.createUid();
-		
-		const responsePromise = new Promise<System.Array<any>>((resolve) => {
-			var handler = API.onServerEventTrigger.connect((eventName, eventArgs) => {
-				if (eventName !== this.responseEventName + uid) return;
+		var splitEventName = eventName.replace(AsyncServerCallback.clientRequestEventName, "").split("-");
 
-				handler.disconnect();
-				resolve(eventArgs);
-			});
-		});
-		
-		this.shittyMethodArgsInvoke(`${this.requestEventName}${this.sanitizeMethodName(method)}-${uid}`, args);
+		if (splitEventName.length !== 2)
+			return;
 
-		return responsePromise;
+		var [requestEventName, requestUid] = splitEventName;
+
+		var response = this.executeEvent(requestEventName, argumentss);
+		AsyncServerCallback.replyToServerWithResponse(requestUid, response);
 	}
 
-	// Trust me, it was the ONLY fucking way to do this. Need mor args (wtf is wrong with you)? Add more cases.
-	// Think you have a better solution? Tell me. But test it first, because trust me, it won't work.
+	private executeEvent = (requestEventName: string, requestArguments: System.Array<any>) => {
+		if (!this.eventHandlers.hasOwnProperty(requestEventName))
+			return null;
+
+		return this.eventHandlers[requestEventName].call(null, requestArguments);
+	}
+
+	// Trust me, it was the ONLY fucking way to do this. Need more args (wtf is wrong with you)? Add more cases.
+	// Think you have a better solution? Tell me. But test it first, because trust me, it probably won't work.
 	private static shittyMethodArgsInvoke(serverEventName: string, args: any[]) {
 		switch (args.length) {
 			case 0:
