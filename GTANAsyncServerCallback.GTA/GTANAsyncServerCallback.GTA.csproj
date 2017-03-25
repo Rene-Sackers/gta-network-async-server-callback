@@ -61,16 +61,6 @@
   <ItemGroup>
     <TypeScriptCompile Include="resources\asyncsc\Client\AsyncServerCallback.ts" />
     <TypeScriptCompile Include="resources\asyncsc\Client\Main.ts" />
-    <TypeScriptCompile Include="types-gtanetwork\Declarations.d.ts" />
-    <TypeScriptCompile Include="types-gtanetwork\Enums.ts" />
-    <TypeScriptCompile Include="types-gtanetwork\GTANetwork.dll.d.ts" />
-    <TypeScriptCompile Include="types-gtanetwork\GTANetworkShared.dll.d.ts" />
-    <TypeScriptCompile Include="types-gtanetwork\index.d.ts" />
-    <TypeScriptCompile Include="types-gtanetwork\NativeUI.dll.d.ts" />
-    <TypeScriptCompile Include="types-gtanetwork\ScriptHookVDotNet.dll.d.ts" />
-    <TypeScriptCompile Include="types-gtanetwork\System.d.ts" />
-    <TypeScriptCompile Include="types-gtanetwork\System.Drawing.dll.d.ts" />
-    <TypeScriptCompile Include="types-gtanetwork\Xilium.CefGlue.dll.d.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="resources\asyncsc\meta.xml" />
