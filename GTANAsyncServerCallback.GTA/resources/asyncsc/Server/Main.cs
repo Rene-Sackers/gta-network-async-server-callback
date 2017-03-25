@@ -16,20 +16,16 @@ namespace GTANAsyncServerCallback.GTA.resources.asyncsc.Server
 			_asyncServerCallback.RegisterEventHandler("server-test", ServerTestMethodHandler);
 		}
 
-		private static object ServerTestMethodHandler(object[] argument)
+		private static object[] ServerTestMethodHandler(object[] arguments)
 		{
-			return argument[0] + "to that!";
+			return new[] {arguments[0] + " " + arguments[1], arguments[2]};
 		}
 
 		private async void OnPlayerFinishedDownload(Client player)
 		{
-			const string stringToSend = "Add this: ";
-
-			API.consoleOutput($"Sending: {stringToSend}");
-
-			var awaitedResponse = await _asyncServerCallback.GetFromClient(player, "client-test", stringToSend);
-
-			API.consoleOutput($"Response: {awaitedResponse[0]}");
+			var awaitedResponse = await _asyncServerCallback.GetFromClient(player, "client-test", "A", "B", "C");
+			
+			API.consoleOutput($"Response: {awaitedResponse[0]}, {awaitedResponse[1]}");
 		}
 	}
 }

@@ -55,6 +55,7 @@ class AsyncServerCallback {
 	}
 
 	private static replyToServerWithResponse = (requestUid: string, response: any[]) => {
+
 		AsyncServerCallback.shittyMethodArgsInvoke(`${AsyncServerCallback.clientResponseEventName}${requestUid}`, response);
 	}
 
@@ -80,8 +81,8 @@ class AsyncServerCallback {
 	private executeEvent = (requestEventName: string, requestArguments: System.Array<any>) => {
 		if (!this.eventHandlers.hasOwnProperty(requestEventName))
 			return null;
-
-		return this.eventHandlers[requestEventName].call(null, requestArguments);
+		
+		return this.eventHandlers[requestEventName](requestArguments);
 	}
 
 	// Trust me, it was the ONLY fucking way to do this. Need more args (wtf is wrong with you)? Add more cases.

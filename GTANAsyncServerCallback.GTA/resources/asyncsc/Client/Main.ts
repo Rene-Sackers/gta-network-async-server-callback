@@ -15,17 +15,13 @@ class Main {
 	}
 
 	private getFromServerAsync = async () => {
-		const stringToSend = "Add this: ";
+		const awaitedResponse = await this.asyncServerCallback.getFromServer("server-test", "A", "B", "C");
 
-		API.sendChatMessage(`Sending: ${stringToSend}`);
-
-		const awaitedResponse = await this.asyncServerCallback.getFromServer("server-test", stringToSend);
-
-		API.sendChatMessage(`Response: ${awaitedResponse[0]}`);
+		API.sendChatMessage(`Response: ${awaitedResponse[0]}, ${awaitedResponse[1]}`);
 	}
 
 	clientTestMethodHandler = (argumentss: System.Array<any>) => {
-		return [argumentss[0] + "to that!"];
+		return [argumentss[0] + " " + argumentss[1], argumentss[2]];
 	}
 }
 

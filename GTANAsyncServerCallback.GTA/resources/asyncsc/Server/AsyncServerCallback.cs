@@ -18,7 +18,7 @@ namespace GTANAsyncServerCallback.GTA.resources.asyncsc.Server
 
 		private static readonly Random Random = new Random();
 
-		private readonly Dictionary<string, Func<object[], object>> _eventHandlers = new Dictionary<string, Func<object[], object>>();
+		private readonly Dictionary<string, Func<object[], object[]>> _eventHandlers = new Dictionary<string, Func<object[], object[]>>();
 		private readonly API _apiInstance;
 
 		public AsyncServerCallback(API api)
@@ -27,7 +27,7 @@ namespace GTANAsyncServerCallback.GTA.resources.asyncsc.Server
 			_apiInstance.onClientEventTrigger += OnClientEventTrigger;
 		}
 		
-		public void RegisterEventHandler(string methodName, Func<object[], object> handler)
+		public void RegisterEventHandler(string methodName, Func<object[], object[]> handler)
 		{
 			methodName = SanitizeMethodName(methodName);
 
@@ -85,7 +85,7 @@ namespace GTANAsyncServerCallback.GTA.resources.asyncsc.Server
 			return string.Concat(buffer.Select(x => x.ToString("X2")).ToArray());
 		}
 
-		private static void ReplyToClientWithResponse(Client sender, string requestUid, object response)
+		private static void ReplyToClientWithResponse(Client sender, string requestUid, object[] response)
 		{
 			API.shared.triggerClientEvent(sender, $"{ServerResponseEventName}{requestUid}", response);
 		}
@@ -112,7 +112,7 @@ namespace GTANAsyncServerCallback.GTA.resources.asyncsc.Server
 			ReplyToClientWithResponse(sender, requestUid, response);
 		}
 
-		private object ExecuteEvent(string requestEventName, object[] requestArguments)
+		private object[] ExecuteEvent(string requestEventName, object[] requestArguments)
 		{
 			if (!_eventHandlers.ContainsKey(requestEventName))
 				throw new InvalidOperationException($"Tried to answer client async server callback with event name {requestEventName}, but a handler has not been registered for it.");
